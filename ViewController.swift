@@ -24,21 +24,26 @@ class ViewController: UIViewController {
     let game = Game()
     var stageSound: AVAudioPlayer!
     var attackSound: AVAudioPlayer!
+    var yellSound: AVAudioPlayer!
     
     override func viewDidLoad() {
         super.viewDidLoad()
         txt.text = "Pick your hero!"
         let path1 = NSBundle.mainBundle().pathForResource("StageMusic", ofType: "wav")
         let path2 = NSBundle.mainBundle().pathForResource("swipe", ofType: "wav")!
+        let path3 = NSBundle.mainBundle().pathForResource("yell", ofType: "wav")!
+        let soundUrlYell = NSURL(fileURLWithPath: path3)
         let soundUrl1 = NSURL(fileURLWithPath: path1!)
         let soundUrlAtk = NSURL(fileURLWithPath: path2)
-        
         
         do {
             try stageSound = AVAudioPlayer(contentsOfURL: soundUrl1)
             stageSound.prepareToPlay()
+            stageSound.volume = 0.4
             try attackSound = AVAudioPlayer(contentsOfURL: soundUrlAtk)
             attackSound.prepareToPlay()
+            try yellSound = AVAudioPlayer(contentsOfURL: soundUrlYell)
+            yellSound.prepareToPlay()
         } catch let err as NSError {
             print(err.debugDescription)
         }
@@ -56,7 +61,7 @@ class ViewController: UIViewController {
         if game.isRunning {
         gm.players[1].attack()
         txt.text = "Player 1 attacked for \(gm.players[0].attackPower)"
-        playAtkSound()
+        playAtkSound(gm.players[0].type)
         atkBtn2.enabled = false
         NSTimer.scheduledTimerWithTimeInterval(1, target: self, selector: Selector("enableBtn1"), userInfo: nil, repeats: false)
         print("\(gm.players[1].hp)" + gm.players[1].type)
@@ -72,7 +77,7 @@ class ViewController: UIViewController {
         if game.isRunning {
             gm.players[0].attack()
             txt.text = "Player 2 attacked for \(gm.players[1].attackPower)"
-            playAtkSound()
+            playAtkSound(gm.players[1].type)
             atkBtn1.enabled = false
             NSTimer.scheduledTimerWithTimeInterval(1, target: self, selector: Selector("enableBtn2"), userInfo: nil, repeats: false)
             print("\(gm.players[0].hp)" + gm.players[0].type)
@@ -125,8 +130,13 @@ class ViewController: UIViewController {
         }
     }
     
-    func playAtkSound() {
-        attackSound.play()
+    func playAtkSound(type: String) {
+        switch type {
+        case "Orc":
+            yellSound.play()
+        default:
+            attackSound.play()
+        }
     }
     
     //load image, change its axis
